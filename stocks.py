@@ -18,11 +18,12 @@ def remove_ticker(stock):
 
 def calc(stock: str) -> dict:
     try:
-        history = tickers[stock].history(period='5d', interval='1d')
+        history = yf.Ticker(stock).history(period='5d', interval='1d')
+        curr = yf.Ticker(stock).fast_info['last_price']
         if len(history) < 2:
             return {'alert': False, 'error': f'Not enough data for {stock}'}
         
-        curr, prev = tickers[stock].fast_info['last_price'], history.iloc[-2]['Close']
+        prev = history.iloc[-2]['Close']
         change = ((curr - prev) / prev) * 100
         direction = "down" if change < 0 else "up"
 
