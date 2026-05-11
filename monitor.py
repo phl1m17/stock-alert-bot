@@ -52,7 +52,7 @@ def monitor_loop():
             alerts, alerted_stocks = job()
             messages = []
             for stock, data in alerted_stocks.items():
-                sentiment = alerts['News'][stock]['sentiment']
+                sentiment = alerts['News'][data['stock']]['sentiment']
                 sentiment_text = ", ".join(f"{v} {k}" for k, v in sentiment.items() if v > 0)
                 messages.append(
                     f"{stock_names[stock]} is {data['direction']} "
