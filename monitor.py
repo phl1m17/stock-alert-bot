@@ -1,8 +1,8 @@
 from notifier import send_text
 from prompt_toolkit.patch_stdout import patch_stdout
-from stocks import calc, get_news, stock_names
+from stocks import calc, get_news
 from sentiment import analyze_sentiment
-from watchlist import stocks
+from watchlist import stocks, stock_names
 from datetime import datetime
 import time
 import pytz
@@ -49,15 +49,14 @@ def is_market_open():
 def monitor_loop():
     while True:
         if is_market_open():
-            alerts, alerted_stocks = job()
             messages = []
-            for stock, data in alerted_stocks.items():
-                sentiment = alerts['News'][data['stock']]['sentiment']
-                sentiment_text = ", ".join(f"{v} {k}" for k, v in sentiment.items() if v > 0)
+            for stock in stocks:
+                result = calc(stock)
+                if 'error' in result:
+                    continue
+                prefix = "🚨 " if result['alert'] else "   "
                 messages.append(
-                    f"{stock_names[stock]} is {data['direction']} "
-                    f"{data['change']:+.2f}%. "
-                    f"Sentiment: {sentiment_text}."
+                    f"{prefix}{stock_names[stock]}: {result['change']:+.2f}%"
                 )
 
             full_message = f"[{datetime.now().strftime('%H:%M:%S')}]\n" + "\n".join(messages)
