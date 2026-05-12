@@ -223,10 +223,15 @@ def cli_loop():
                         add_ticker(ticker)
                     safe_name = html.escape(stock_names.get(ticker, ticker))
                     if ticker in purchases:
-                        purchases[ticker]['shares'] += shares
+                        old_price = purchases[ticker]['price']
+                        old_shares = purchases[ticker]['shares']
+                        avg_price = ((old_price * old_shares) + (price * shares)) / (old_shares + shares)
+                        purchases[ticker]['price'] = avg_price
+                        purchases[ticker]['shares'] = old_shares + shares
+                        safe_name = html.escape(stock_names.get(ticker, ticker))
                         print_formatted_text(HTML(
                             f'<ansigreen>✓ Updated {safe_name} ({ticker}) — '
-                            f'${purchases[ticker]["price"]:.2f} × {purchases[ticker]["shares"]} shares</ansigreen>'
+                            f'avg ${avg_price:.2f} × {purchases[ticker]["shares"]} shares</ansigreen>'
                         ))
                     else:
                         purchases[ticker] = {'price': price, 'shares': shares}
